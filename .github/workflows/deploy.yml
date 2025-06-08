@@ -25,6 +25,7 @@ jobs:
         cp -r app deploy_package/
         cp requirements.txt deploy_package/
         cp gunicorn.conf.py deploy_package/
+        cp web.config deploy_package/
         # Show package contents
         echo "Deployment package contents:"
         ls -la deploy_package/
@@ -35,7 +36,6 @@ jobs:
         app-name: 'fruits-api-app'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: './deploy_package'
-        startup-command: 'python -m gunicorn --bind=0.0.0.0:8000 --timeout 600 app.main:app'
 
     - name: Post-deployment verification
       if: success()
