@@ -1,10 +1,14 @@
 import pytest
+import os
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.database import Base, get_db
 from app.models import Fruit, NutritionalInfo, Supplier
+
+# Set testing environment variable
+os.environ["TESTING"] = "true"
 
 # Set up test database
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -42,7 +46,7 @@ app.dependency_overrides[get_db] = override_get_db
 
 client = TestClient(app)
 
-def test_read_root(client):
+def test_read_root():
     response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {
@@ -51,7 +55,7 @@ def test_read_root(client):
         "redoc_url": "/redoc"
     }
 
-def test_get_all_data_empty(client):
+def test_get_all_data_empty():
     response = client.get("/api/v1/get_all_data")
     assert response.status_code == 200
     data = response.json()
@@ -61,7 +65,7 @@ def test_get_all_data_empty(client):
     assert "total_nutritional_records" in data
     assert data["total_fruits"] == 0
 
-def test_get_all_data_with_sample_data(client, db_session):
+def test_get_all_data_with_sample_data(db):
     # Create sample data
     fruit = Fruit(
         name="Apple",
@@ -70,8 +74,8 @@ def test_get_all_data_with_sample_data(client, db_session):
         origin_country="USA",
         price_per_kg=2.99
     )
-    db_session.add(fruit)
-    db_session.flush()
+    db.add(fruit)
+    db.flush()
 
     nutritional_info = NutritionalInfo(
         fruit_id=fruit.id,
@@ -82,7 +86,7 @@ def test_get_all_data_with_sample_data(client, db_session):
         fiber=2.4,
         vitamins="A, C"
     )
-    db_session.add(nutritional_info)
+    db.add(nutritional_info)
 
     supplier = Supplier(
         name="Fresh Farms",
@@ -90,11 +94,11 @@ def test_get_all_data_with_sample_data(client, db_session):
         contact_email="contact@freshfarms.com",
         rating=4.5
     )
-    db_session.add(supplier)
-    db_session.flush()
+    db.add(supplier)
+    db.flush()
 
     fruit.suppliers.append(supplier)
-    db_session.commit()
+    db.commit()
 
     # Test the endpoint
     response = client.get("/api/v1/get_all_data")
@@ -112,16 +116,16 @@ def test_get_all_data_with_sample_data(client, db_session):
     assert len(fruit_data["suppliers"]) == 1
     assert fruit_data["suppliers"][0]["name"] == "Fresh Farms"
 
-def test_get_fruits_empty(client):
+def test_get_fruits_empty():
     response = client.get("/api/v1/fruits")
     assert response.status_code == 200
     assert response.json() == []
 
-def test_get_fruits(client, db_session):
+def test_get_fruits(db):
     # Create test fruit
     fruit = Fruit(name="apple", color="red")
-    db_session.add(fruit)
-    db_session.commit()
+    db.add(fruit)
+    db.commit()
 
     response = client.get("/api/v1/fruits")
     assert response.status_code == 200
@@ -131,11 +135,11 @@ def test_get_fruits(client, db_session):
     assert fruits[0]["fruit"] == "apple"
     assert fruits[0]["color"] == "red"
 
-def test_get_fruit_by_id(client, db_session):
+def test_get_fruit_by_id(db):
     # Create test fruit
     fruit = Fruit(name="apple", color="red")
-    db_session.add(fruit)
-    db_session.commit()
+    db.add(fruit)
+    db.commit()
 
     response = client.get(f"/api/v1/fruits/{fruit.id}")
     assert response.status_code == 200
@@ -144,12 +148,12 @@ def test_get_fruit_by_id(client, db_session):
     assert data["fruit"] == "apple"
     assert data["color"] == "red"
 
-def test_get_fruit_not_found(client):
+def test_get_fruit_not_found():
     response = client.get("/api/v1/fruits/999")
     assert response.status_code == 404
     assert response.json()["detail"] == "Fruit not found"
 
-def test_create_fruit(client):
+def test_create_fruit():
     fruit_data = {
         "fruit": "apple",
         "color": "red"

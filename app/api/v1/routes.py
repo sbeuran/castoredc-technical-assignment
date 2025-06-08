@@ -5,6 +5,7 @@ from app.database import get_db
 from app.models import Fruit, NutritionalInfo, Supplier, FruitSupplier
 from app.schemas import Fruit as FruitSchema, NutritionalInfo as NutritionalInfoSchema, Supplier as SupplierSchema
 from pydantic import BaseModel
+import os
 
 router = APIRouter()
 
@@ -20,6 +21,10 @@ class BasicFruitCreate(BaseModel):
 
 # Initialize some data
 def init_data(db: Session):
+    # Skip initialization in test environment
+    if os.getenv("TESTING") == "true":
+        return
+
     try:
         # Check if we already have data
         if db.query(Fruit).count() == 0:
@@ -212,4 +217,4 @@ async def get_all_data(db: Session = Depends(get_db)):
             "total_nutritional_records": len(nutritional_info)
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}") 
+        raise HTTPException(status_code=500, detail=str(e)) 
