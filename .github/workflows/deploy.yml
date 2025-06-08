@@ -25,7 +25,8 @@ jobs:
         cp -r app deploy_package/
         cp requirements.txt deploy_package/
         # Create startup command file
-        echo "python -m gunicorn --bind=0.0.0.0:%WEBSITE_PORT% app.main:app" > deploy_package/startup.sh
+        echo "cd /home/site/wwwroot && /home/site/wwwroot/antenv/bin/python -m gunicorn --bind=0.0.0.0:8000 app.main:app --workers=4 --timeout=600 --access-logfile=- --error-logfile=- --log-level=debug" > deploy_package/startup.sh
+        chmod +x deploy_package/startup.sh
         # Install dependencies in the package
         cd deploy_package
         python -m pip install -r requirements.txt
