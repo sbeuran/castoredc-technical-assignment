@@ -10,20 +10,26 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "Current directory: $SCRIPT_DIR"
 echo "Python version: $(python3 --version)"
 echo "Python location: $(which python3)"
-echo "Pip version: $(pip3 --version)"
 
-# Install dependencies directly without virtual environment
+# Install pip if not available
+echo "Installing/Upgrading pip..."
+python3 -m ensurepip --upgrade
+python3 -m pip install --upgrade pip
+
+# Install dependencies
 echo "Installing dependencies..."
-pip3 install --user -r "$SCRIPT_DIR/requirements.txt"
-pip3 install --user gunicorn
+python3 -m pip install --user -r "$SCRIPT_DIR/requirements.txt"
+python3 -m pip install --user gunicorn
 
 # Set environment variables
 export PYTHONPATH="$SCRIPT_DIR:$PYTHONPATH"
+export PATH="$HOME/.local/bin:$PATH"
 
 # Start Gunicorn
 echo "Starting Gunicorn..."
 echo "Using Python: $(which python3)"
-~/.local/bin/gunicorn \
+echo "Gunicorn path: $(which gunicorn)"
+gunicorn \
     --config "$SCRIPT_DIR/gunicorn.conf.py" \
     --chdir "$SCRIPT_DIR" \
     --bind=0.0.0.0:8000 \
