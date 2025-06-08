@@ -3,6 +3,12 @@
 # Navigate to app directory
 cd /home/site/wwwroot
 
+# Ensure proper directory structure
+mkdir -p app/api/v1
+
+# Set proper permissions
+chmod -R 755 .
+
 # Add the current directory to PYTHONPATH
 export PYTHONPATH=$PYTHONPATH:/home/site/wwwroot
 
