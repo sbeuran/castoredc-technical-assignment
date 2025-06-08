@@ -36,6 +36,10 @@ jobs:
         cp gunicorn.conf.py deploy_package/
         # Make startup script executable
         chmod +x deploy_package/startup.sh
+        # Create virtual environment in package
+        python -m venv deploy_package/venv
+        deploy_package/venv/bin/pip install -r requirements.txt
+        deploy_package/venv/bin/pip install gunicorn
         # Show package contents
         echo "Deployment package contents:"
         ls -la deploy_package/
@@ -46,7 +50,6 @@ jobs:
         app-name: 'fruits-api-app'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: './deploy_package'
-        type: 'zip'
 
     - name: Post-deployment verification
       if: success()

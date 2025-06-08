@@ -1,19 +1,21 @@
 #!/bin/bash
 
-# Navigate to app directory
-cd /home/site/wwwroot
+# Exit on error
+set -e
 
-# Ensure proper directory structure
-mkdir -p app/api/v1
+# Get directory of this script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Set proper permissions
-chmod -R 755 .
+# Activate virtual environment
+source $SCRIPT_DIR/venv/bin/activate
 
-# Add the current directory to PYTHONPATH
-export PYTHONPATH=$PYTHONPATH:/home/site/wwwroot
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Start the application with debug logging
-gunicorn app.main:app --bind=0.0.0.0:8000 --workers=4 --timeout 600 --access-logfile - --error-logfile - --log-level debug 
+# Start Gunicorn
+exec gunicorn \
+    --config $SCRIPT_DIR/gunicorn.conf.py \
+    --chdir $SCRIPT_DIR \
+    --bind=0.0.0.0:8000 \
+    --timeout 600 \
+    --access-logfile '-' \
+    --error-logfile '-' \
+    --log-level info \
+    "app.main:app" 
