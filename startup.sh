@@ -6,13 +6,20 @@ set -e
 # Get directory of this script
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# Set Python paths for Azure App Service
+PYTHON_DIR="/usr/local/python/3.11/bin"
+export PATH="$PYTHON_DIR:$PATH"
+
+echo "Python location: $(which python3)"
+echo "Current directory: $SCRIPT_DIR"
+
 # Create and activate virtual environment if it doesn't exist
 if [ ! -d "$SCRIPT_DIR/venv" ]; then
     echo "Creating virtual environment..."
-    python -m venv "$SCRIPT_DIR/venv"
+    python3 -m venv "$SCRIPT_DIR/venv"
     source "$SCRIPT_DIR/venv/bin/activate"
     echo "Installing dependencies..."
-    python -m pip install --upgrade pip
+    python3 -m pip install --upgrade pip
     pip install -r "$SCRIPT_DIR/requirements.txt"
     pip install gunicorn
 else
@@ -25,6 +32,8 @@ export PYTHONPATH="$SCRIPT_DIR:$PYTHONPATH"
 
 # Start Gunicorn
 echo "Starting Gunicorn..."
+echo "Using Python: $(which python3)"
+echo "Using Gunicorn: $(which gunicorn)"
 gunicorn \
     --config "$SCRIPT_DIR/gunicorn.conf.py" \
     --chdir "$SCRIPT_DIR" \
