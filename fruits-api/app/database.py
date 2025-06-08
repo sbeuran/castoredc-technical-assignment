@@ -6,10 +6,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MYSQL_USER = os.getenv("MYSQL_USER", "mysqladmin")
-MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "P@ssw0rd123!")
-MYSQL_HOST = os.getenv("MYSQL_HOST", "fruits-api-db.mysql.database.azure.com")
-MYSQL_DATABASE = os.getenv("MYSQL_DATABASE", "fruits")
+# Required environment variables
+required_env_vars = ["MYSQL_USER", "MYSQL_PASSWORD", "MYSQL_HOST", "MYSQL_DATABASE"]
+missing_vars = [var for var in required_env_vars if not os.getenv(var)]
+if missing_vars:
+    raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
+
+MYSQL_USER = os.getenv("MYSQL_USER")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
+MYSQL_HOST = os.getenv("MYSQL_HOST")
+MYSQL_DATABASE = os.getenv("MYSQL_DATABASE")
 
 DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}/{MYSQL_DATABASE}"
 
