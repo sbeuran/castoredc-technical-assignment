@@ -24,6 +24,8 @@ jobs:
         # Copy necessary files
         cp -r app deploy_package/
         cp requirements.txt deploy_package/
+        # Create startup command file
+        echo "python -m gunicorn --bind=0.0.0.0:%WEBSITE_PORT% app.main:app" > deploy_package/startup.sh
         # Install dependencies in the package
         cd deploy_package
         python -m pip install -r requirements.txt
@@ -37,7 +39,6 @@ jobs:
         app-name: 'fruits-api-app'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: './deploy_package'
-        startup-command: 'python -m gunicorn --bind=0.0.0.0:$PORT app.main:app'
 
     - name: Post-deployment verification
       if: success()
