@@ -24,11 +24,14 @@ jobs:
         # Copy necessary files
         cp -r app deploy_package/
         cp requirements.txt deploy_package/
-        cp gunicorn.conf.py deploy_package/
         cp web.config deploy_package/
+        cp startup.txt deploy_package/
+        # Install dependencies in the package
+        cd deploy_package
+        python -m pip install -r requirements.txt
         # Show package contents
         echo "Deployment package contents:"
-        ls -la deploy_package/
+        ls -la
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
