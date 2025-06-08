@@ -9,8 +9,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Activate virtual environment
 source $SCRIPT_DIR/venv/bin/activate
 
-# Start Gunicorn
-exec gunicorn \
+# Start Gunicorn using full path
+$SCRIPT_DIR/venv/bin/gunicorn \
     --config $SCRIPT_DIR/gunicorn.conf.py \
     --chdir $SCRIPT_DIR \
     --bind=0.0.0.0:8000 \

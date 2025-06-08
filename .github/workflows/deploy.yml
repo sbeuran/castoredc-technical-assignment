@@ -38,6 +38,7 @@ jobs:
         chmod +x deploy_package/startup.sh
         # Create virtual environment in package
         python -m venv deploy_package/venv
+        deploy_package/venv/bin/pip install --upgrade pip
         deploy_package/venv/bin/pip install -r requirements.txt
         deploy_package/venv/bin/pip install gunicorn
         # Show package contents
@@ -50,6 +51,7 @@ jobs:
         app-name: 'fruits-api-app'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: './deploy_package'
+        startup-command: 'bash startup.sh'
 
     - name: Post-deployment verification
       if: success()
