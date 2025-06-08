@@ -21,14 +21,16 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_
 def engine():
     return test_engine
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 def create_tables(engine):
+    """Create all tables before each test and drop them after"""
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture
-def db_session():
+def db_session(create_tables):
+    """Provide a clean database session for each test"""
     connection = test_engine.connect()
     transaction = connection.begin()
     session = TestingSessionLocal(bind=connection)
@@ -42,6 +44,7 @@ def db_session():
 
 @pytest.fixture
 def client(db_session):
+    """Provide a test client with a clean database session"""
     def override_get_db():
         try:
             yield db_session
