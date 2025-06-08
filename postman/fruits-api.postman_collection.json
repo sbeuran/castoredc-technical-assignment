@@ -1,0 +1,149 @@
+{
+    "info": {
+        "name": "Fruits API",
+        "description": "Collection for testing the Fruits API endpoints",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Get All Fruits",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/fruits",
+                    "host": ["{{base_url}}"],
+                    "path": [
+                        "api",
+                        "v1",
+                        "fruits"
+                    ]
+                },
+                "description": "Get all fruits in basic format"
+            },
+            "response": [
+                {
+                    "name": "Example Response",
+                    "originalRequest": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/fruits"
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "body": [
+                        {
+                            "id": 1,
+                            "fruit": "apple",
+                            "color": "red"
+                        },
+                        {
+                            "id": 2,
+                            "fruit": "banana",
+                            "color": "yellow"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Get Specific Fruit",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/fruits/1",
+                    "host": ["{{base_url}}"],
+                    "path": [
+                        "api",
+                        "v1",
+                        "fruits",
+                        "1"
+                    ]
+                },
+                "description": "Get a specific fruit by ID"
+            },
+            "response": [
+                {
+                    "name": "Example Response",
+                    "originalRequest": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/fruits/1"
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "body": {
+                        "id": 1,
+                        "fruit": "apple",
+                        "color": "red"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Add New Fruit",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"fruit\": \"apple\",\n    \"color\": \"red\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/v1/fruits",
+                    "host": ["{{base_url}}"],
+                    "path": [
+                        "api",
+                        "v1",
+                        "fruits"
+                    ]
+                },
+                "description": "Add a new fruit"
+            },
+            "response": [
+                {
+                    "name": "Example Response",
+                    "originalRequest": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/fruits"
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "body": {
+                        "id": 1,
+                        "fruit": "apple",
+                        "color": "red"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Get All Data (Extended)",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/get_all_data",
+                    "host": ["{{base_url}}"],
+                    "path": [
+                        "api",
+                        "v1",
+                        "get_all_data"
+                    ]
+                },
+                "description": "Get all data including fruits, nutritional info, and suppliers"
+            },
+            "response": []
+        }
+    ]
+} 
