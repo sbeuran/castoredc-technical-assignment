@@ -37,10 +37,11 @@ jobs:
 
         # Set startup command
         az webapp config set --name fruits-api-app --resource-group fruits-api-rg \
-          --generic-configurations '{"appCommandLine": "gunicorn --bind=0.0.0.0:8000 app.main:app"}'
+          --generic-configurations '{"appCommandLine": "pip install -r requirements.txt && gunicorn --bind=0.0.0.0:8000 app.main:app"}'
 
         # Configure app settings
         az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings \
+          SCM_DO_BUILD_DURING_DEPLOYMENT=true \
           WEBSITES_PORT=8000 \
           PORT=8000 \
           WEBSITE_WEBDEPLOY_USE_SCM=true \
