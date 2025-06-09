@@ -2,7 +2,8 @@ name: Deploy to Azure App Service
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -10,54 +11,43 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v2
       with:
         python-version: '3.11'
 
-    - name: Prepare deployment package
+    - name: Install dependencies
       run: |
-        # Create deployment package directory
-        mkdir -p deploy_package
-        # Copy necessary files
-        cp -r app deploy_package/
-        cp requirements.txt deploy_package/
-        # Create web.config
-        cat > deploy_package/web.config << 'EOL'
-        <?xml version="1.0" encoding="utf-8"?>
-        <configuration>
-          <system.webServer>
-            <handlers>
-              <add name="PythonHandler" path="*" verb="*" modules="httpPlatformHandler" resourceType="Unspecified"/>
-            </handlers>
-            <httpPlatform processPath="%home%\Python311\python.exe"
-                        arguments="-m gunicorn --chdir %home%\site\wwwroot app.main:app --bind=0.0.0.0:%HTTP_PLATFORM_PORT% --workers=4 --timeout=600 --access-logfile=- --error-logfile=- --log-level=debug"
-                        stdoutLogEnabled="true"
-                        stdoutLogFile="\\?\%home%\LogFiles\python.log"
-                        startupTimeLimit="60">
-              <environmentVariables>
-                <environmentVariable name="PYTHONPATH" value="%home%\site\wwwroot" />
-                <environmentVariable name="PORT" value="%HTTP_PLATFORM_PORT%" />
-              </environmentVariables>
-            </httpPlatform>
-          </system.webServer>
-        </configuration>
-        EOL
-        # Install dependencies in the package
-        cd deploy_package
-        python -m pip install -r requirements.txt
-        # Show package contents
-        echo "Deployment package contents:"
-        ls -la
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Make startup script executable
+      run: |
+        chmod +x startup.sh
+
+    - name: Configure Azure App Settings
+      uses: azure/appservice-settings@v1
+      with:
+        app-name: 'fruits-api-app'
+        app-settings-json: |
+          {
+            "WEBSITE_RUN_FROM_PACKAGE": "1",
+            "PYTHONPATH": "/home/site/wwwroot",
+            "PORT": "8000",
+            "SCM_DO_BUILD_DURING_DEPLOYMENT": "true",
+            "PYTHON_ENABLE_GUNICORN": "true",
+            "WEBSITES_PORT": "8000"
+          }
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
         app-name: 'fruits-api-app'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: './deploy_package'
+        package: .
+        startup-command: '/home/site/wwwroot/startup.sh'
 
     - name: Post-deployment verification
       if: success()
