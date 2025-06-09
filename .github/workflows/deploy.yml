@@ -35,23 +35,24 @@ jobs:
           --linux-fx-version "PYTHON|3.11" \
           --always-on true
 
-        # Set individual app settings
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings WEBSITES_PORT=8000
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings PORT=8000
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings WEBSITE_WEBDEPLOY_USE_SCM=true
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings PYTHON_ENABLE_GUNICORN=true
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings PYTHON_VERSION=3.11
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings PYTHON_ENABLE_VENV=0
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings PYTHONPATH=/home/site/wwwroot
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings WEBSITE_RUN_FROM_PACKAGE=1
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings WEBSITE_ENABLE_SYNC_UPDATE_SITE=true
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings GUNICORN_CMD_ARGS="--workers=4 --worker-class=uvicorn.workers.UvicornWorker --timeout=600 --access-logfile=- --error-logfile=-"
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings MYSQL_USER='${{ secrets.MYSQL_USER }}'
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings MYSQL_PASSWORD='${{ secrets.MYSQL_PASSWORD }}'
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings MYSQL_HOST='${{ secrets.MYSQL_HOST }}'
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings MYSQL_DATABASE='${{ secrets.MYSQL_DATABASE }}'
-        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings STARTUP_COMMAND="gunicorn app.main:app --bind=0.0.0.0:8000 --workers=4 --worker-class uvicorn.workers.UvicornWorker --timeout 600"
+        # Set app settings
+        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings \
+          WEBSITES_PORT=8000 \
+          PORT=8000 \
+          WEBSITE_WEBDEPLOY_USE_SCM=true \
+          PYTHON_ENABLE_GUNICORN=true \
+          PYTHON_VERSION=3.11 \
+          PYTHON_ENABLE_VENV=0 \
+          PYTHONPATH=/home/site/wwwroot \
+          SCM_DO_BUILD_DURING_DEPLOYMENT=true \
+          WEBSITE_RUN_FROM_PACKAGE=1 \
+          WEBSITE_ENABLE_SYNC_UPDATE_SITE=true \
+          GUNICORN_CMD_ARGS="--workers=4 --worker-class=uvicorn.workers.UvicornWorker --timeout=600 --access-logfile=- --error-logfile=-" \
+          MYSQL_USER='${{ secrets.MYSQL_USER }}' \
+          MYSQL_PASSWORD='${{ secrets.MYSQL_PASSWORD }}' \
+          MYSQL_HOST='${{ secrets.MYSQL_HOST }}' \
+          MYSQL_DATABASE='${{ secrets.MYSQL_DATABASE }}' \
+          STARTUP_COMMAND="gunicorn app.main:app --bind=0.0.0.0:8000 --workers=4 --worker-class uvicorn.workers.UvicornWorker --timeout 600"
 
         # Start the web app
         az webapp start --name fruits-api-app --resource-group fruits-api-rg
