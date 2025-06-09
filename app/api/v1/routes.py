@@ -170,7 +170,7 @@ async def create_fruit(fruit: BasicFruitCreate, db: Session = Depends(get_db)):
     db.refresh(db_fruit)
     return {"id": db_fruit.id, "fruit": db_fruit.name, "color": db_fruit.color}
 
-@router.get("/get_all_data", response_model=dict)
+@router.get("/get_all_data")
 async def get_all_data(db: Session = Depends(get_db)):
     """
     Get all data from the database including fruits, nutritional info, and suppliers.
@@ -200,18 +200,18 @@ async def get_all_data(db: Session = Depends(get_db)):
                             "name": supplier.name,
                             "contact_email": supplier.contact_email,
                             "country": supplier.country,
-                            "rating": supplier.rating
+                            "rating": float(supplier.rating) if supplier.rating else None
                         }
                         for supplier in fruit.suppliers
                     ],
                     "nutritional_info": {
-                        "id": fruit.nutritional_info.id,
-                        "calories": fruit.nutritional_info.calories,
-                        "carbohydrates": fruit.nutritional_info.carbohydrates,
-                        "protein": fruit.nutritional_info.protein,
-                        "fat": fruit.nutritional_info.fat,
-                        "fiber": fruit.nutritional_info.fiber,
-                        "vitamins": fruit.nutritional_info.vitamins
+                        "id": fruit.nutritional_info.id if fruit.nutritional_info else None,
+                        "calories": fruit.nutritional_info.calories if fruit.nutritional_info else None,
+                        "carbohydrates": fruit.nutritional_info.carbohydrates if fruit.nutritional_info else None,
+                        "protein": fruit.nutritional_info.protein if fruit.nutritional_info else None,
+                        "fat": fruit.nutritional_info.fat if fruit.nutritional_info else None,
+                        "fiber": fruit.nutritional_info.fiber if fruit.nutritional_info else None,
+                        "vitamins": fruit.nutritional_info.vitamins if fruit.nutritional_info else None
                     } if fruit.nutritional_info else None
                 }
                 for fruit in fruits
