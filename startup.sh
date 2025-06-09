@@ -8,4 +8,4 @@ export PYTHONPATH=/home/site/wwwroot
 export PORT=8000
 
 # Start Gunicorn with config file
-exec gunicorn -c /home/site/wwwroot/gunicorn.conf.py 
+exec gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --log-level debug --access-logfile - --error-logfile - --bind=0.0.0.0:8000 
