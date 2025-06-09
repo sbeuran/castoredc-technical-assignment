@@ -33,8 +33,11 @@ jobs:
         # Configure Linux container
         az webapp config set --name fruits-api-app --resource-group fruits-api-rg \
           --linux-fx-version "PYTHON|3.11" \
-          --always-on true \
-          --startup-command "gunicorn --bind=0.0.0.0:8000 app.main:app"
+          --always-on true
+
+        # Set startup command
+        az webapp config set --name fruits-api-app --resource-group fruits-api-rg \
+          --generic-configurations '{"appCommandLine": "gunicorn --bind=0.0.0.0:8000 app.main:app"}'
 
         # Configure app settings
         az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings \
