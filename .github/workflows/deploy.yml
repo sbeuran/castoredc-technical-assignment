@@ -17,6 +17,17 @@ jobs:
       with:
         python-version: '3.11'
 
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Stop Web App
+      run: |
+        az webapp stop --name fruits-api-app --resource-group fruits-api-rg
+        echo "Waiting for app to stop..."
+        sleep 30
+
     - name: Prepare deployment package
       run: |
         # Create deployment package directory
@@ -41,11 +52,15 @@ jobs:
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: './deploy_package'
 
+    - name: Start Web App
+      run: |
+        az webapp start --name fruits-api-app --resource-group fruits-api-rg
+        echo "Waiting for app to start..."
+        sleep 30
+
     - name: Post-deployment verification
       if: success()
       run: |
-        echo "Waiting for deployment to stabilize..."
-        sleep 30
         echo "Checking app health..."
         curl -v https://fruits-api-app.azurewebsites.net/health || echo "Health check failed"
         echo "Checking app logs..."
