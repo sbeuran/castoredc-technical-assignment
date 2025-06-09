@@ -32,12 +32,18 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    - name: Stop Web App
+      run: |
+        az webapp stop --name fruits-api-app --resource-group fruits-api-rg
+
     - name: Configure Linux Container
       run: |
         az webapp config set --name fruits-api-app --resource-group fruits-api-rg \
           --linux-fx-version "PYTHON|3.11" \
           --startup-file "startup.sh" \
-          --always-on true
+          --always-on true \
+          --min-tls-version 1.2 \
+          --http20-enabled true
 
     - name: Configure App Settings
       run: |
@@ -53,7 +59,9 @@ jobs:
           MYSQL_HOST="${{ secrets.MYSQL_HOST }}" \
           MYSQL_DATABASE="${{ secrets.MYSQL_DATABASE }}" \
           WEBSITE_HTTPLOGGING_RETENTION_DAYS=7 \
-          PYTHON_ENABLE_VENV=0
+          PYTHON_ENABLE_VENV=0 \
+          WEBSITE_RUN_FROM_PACKAGE=1 \
+          WEBSITE_ENABLE_SYNC_UPDATE_SITE=true
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
@@ -62,10 +70,27 @@ jobs:
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: .
 
+    - name: Start Web App
+      run: |
+        az webapp start --name fruits-api-app --resource-group fruits-api-rg
+
+    - name: Stream logs
+      run: |
+        echo "Waiting for deployment to stabilize..."
+        sleep 30
+        echo "Streaming logs..."
+        az webapp log tail --name fruits-api-app --resource-group fruits-api-rg &
+        sleep 30
+
     - name: Post-deployment verification
       if: success()
       run: |
-        echo "Waiting for deployment to stabilize..."
-        sleep 60
         echo "Checking app health..."
-        curl -v https://fruits-api-app.azurewebsites.net/health || echo "Health check failed" 
+        curl -v https://fruits-api-app.azurewebsites.net/health || echo "Health check failed"
+        
+    - name: Get deployment logs
+      if: always()
+      run: |
+        echo "Fetching deployment logs..."
+        az webapp log download --name fruits-api-app --resource-group fruits-api-rg --log-file app_logs.zip
+        unzip -p app_logs.zip 
