@@ -83,4 +83,4 @@ jobs:
       run: |
         echo "Fetching deployment logs..."
         az webapp log download --name fruits-api-app --resource-group fruits-api-rg --log-file app_logs.zip
-        unzip -p app_logs.zip 
+        unzip -p app_logs.zip
