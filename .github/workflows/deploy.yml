@@ -37,7 +37,7 @@ jobs:
       with:
         app-name: 'fruits-api-app'
         mask-inputs: true
-        app-settings-json: '{"WEBSITE_RUN_FROM_PACKAGE": "1", "PYTHONPATH": "/home/site/wwwroot", "PORT": "8000", "SCM_DO_BUILD_DURING_DEPLOYMENT": "true", "PYTHON_ENABLE_GUNICORN": "true", "WEBSITES_PORT": "8000"}'
+        app-settings-json: "{\"WEBSITE_RUN_FROM_PACKAGE\":\"1\",\"PYTHONPATH\":\"/home/site/wwwroot\",\"PORT\":\"8000\",\"SCM_DO_BUILD_DURING_DEPLOYMENT\":\"true\",\"PYTHON_ENABLE_GUNICORN\":\"true\",\"WEBSITES_PORT\":\"8000\"}"
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
