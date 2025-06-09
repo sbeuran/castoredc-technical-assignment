@@ -40,11 +40,17 @@ jobs:
           PORT=8000 \
           SCM_DO_BUILD_DURING_DEPLOYMENT=true \
           PYTHON_ENABLE_GUNICORN=true \
-          WEBSITES_PORT=8000
+          WEBSITES_PORT=8000 \
+          MYSQL_USER="${{ secrets.MYSQL_USER }}" \
+          MYSQL_PASSWORD="${{ secrets.MYSQL_PASSWORD }}" \
+          MYSQL_HOST="${{ secrets.MYSQL_HOST }}" \
+          MYSQL_DATABASE="${{ secrets.MYSQL_DATABASE }}" \
+          WEBSITE_HTTPLOGGING_RETENTION_DAYS=7 \
+          PYTHON_ENABLE_VENV=0
 
     - name: Configure Linux Container
       run: |
-        az webapp config set --name fruits-api-app --resource-group fruits-api-rg --linux-fx-version "PYTHON|3.11"
+        az webapp config set --name fruits-api-app --resource-group fruits-api-rg --linux-fx-version "PYTHON|3.11" --always-on true
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
@@ -52,7 +58,7 @@ jobs:
         app-name: 'fruits-api-app'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: .
-        startup-command: 'gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app'
+        startup-command: 'gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --log-level debug --access-logfile - --error-logfile -'
 
     - name: Post-deployment verification
       if: success()
