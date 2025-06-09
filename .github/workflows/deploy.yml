@@ -28,22 +28,31 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Configure Linux Container
+    - name: Configure Linux Container and Settings
       run: |
+        # Stop the web app
+        az webapp stop --name fruits-api-app --resource-group fruits-api-rg
+
+        # Configure Linux container
         az webapp config set --name fruits-api-app --resource-group fruits-api-rg \
           --linux-fx-version "PYTHON|3.11" \
           --always-on true
 
-    - name: Configure App Settings
-      run: |
+        # Configure app settings
         az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings \
+          WEBSITES_PORT=8000 \
+          SCM_DO_BUILD_DURING_DEPLOYMENT=true \
           MYSQL_USER='${{ secrets.MYSQL_USER }}' \
           MYSQL_PASSWORD='${{ secrets.MYSQL_PASSWORD }}' \
           MYSQL_HOST='${{ secrets.MYSQL_HOST }}' \
           MYSQL_DATABASE='${{ secrets.MYSQL_DATABASE }}'
 
-    - name: Make startup script executable
-      run: chmod +x startup.sh
+        # Set startup command
+        az webapp config set --name fruits-api-app --resource-group fruits-api-rg \
+          --startup-command "pip install -r requirements.txt && gunicorn app.main:app --bind=0.0.0.0:8000 --workers=4 --worker-class uvicorn.workers.UvicornWorker --timeout 600"
+
+        # Start the web app
+        az webapp start --name fruits-api-app --resource-group fruits-api-rg
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
@@ -51,7 +60,6 @@ jobs:
         app-name: 'fruits-api-app'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: .
-        startup-command: './startup.sh'
 
     - name: Stream logs
       run: |
