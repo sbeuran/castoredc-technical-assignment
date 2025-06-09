@@ -37,7 +37,7 @@ jobs:
       with:
         app-name: 'fruits-api-app'
         mask-inputs: true
-        app-settings-json: >
+        app-settings-json: |
           {
             "WEBSITE_RUN_FROM_PACKAGE": "1",
             "PYTHONPATH": "/home/site/wwwroot",
