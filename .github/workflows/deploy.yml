@@ -32,44 +32,25 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    - name: Set App Settings
+      id: settings
+      run: |
+        echo '{
+          "WEBSITE_RUN_FROM_PACKAGE": "1",
+          "PYTHONPATH": "/home/site/wwwroot",
+          "PORT": "8000",
+          "SCM_DO_BUILD_DURING_DEPLOYMENT": "true",
+          "PYTHON_ENABLE_GUNICORN": "true",
+          "WEBSITES_PORT": "8000"
+        }' > app_settings.json
+        echo "settings=$(cat app_settings.json)" >> $GITHUB_OUTPUT
+
     - name: Configure Azure App Settings
       uses: azure/appservice-settings@v1
       with:
         app-name: 'fruits-api-app'
         mask-inputs: true
-        app-settings: |
-          [
-            {
-              "name": "WEBSITE_RUN_FROM_PACKAGE",
-              "value": "1",
-              "slotSetting": false
-            },
-            {
-              "name": "PYTHONPATH",
-              "value": "/home/site/wwwroot",
-              "slotSetting": false
-            },
-            {
-              "name": "PORT",
-              "value": "8000",
-              "slotSetting": false
-            },
-            {
-              "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
-              "value": "true",
-              "slotSetting": false
-            },
-            {
-              "name": "PYTHON_ENABLE_GUNICORN",
-              "value": "true",
-              "slotSetting": false
-            },
-            {
-              "name": "WEBSITES_PORT",
-              "value": "8000",
-              "slotSetting": false
-            }
-          ]
+        app-settings-json: ${{ steps.settings.outputs.settings }}
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
