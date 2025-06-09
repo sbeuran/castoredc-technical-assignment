@@ -36,7 +36,7 @@ jobs:
           action: "upload"
           app_location: "fruits-frontend"
           api_location: ""
-          output_location: ".next"
+          output_location: "out"
           app_build_command: "npm run build"
           
   close_pull_request_job:
