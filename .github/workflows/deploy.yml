@@ -28,14 +28,22 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    - name: Stop Web App
+      run: |
+        echo "Stopping web app..."
+        az webapp stop --name fruits-api-app --resource-group fruits-api-rg
+
     - name: Configure Linux Container
       run: |
+        echo "Configuring Linux container..."
         az webapp config set --name fruits-api-app --resource-group fruits-api-rg \
           --linux-fx-version "PYTHON|3.11" \
-          --always-on true
+          --always-on true \
+          --startup-file "gunicorn app.main:app --bind=0.0.0.0:8000 --workers=4 --worker-class uvicorn.workers.UvicornWorker --timeout 600"
 
     - name: Configure App Settings
       run: |
+        echo "Configuring app settings..."
         az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings \
           WEBSITES_PORT=8000 \
           PORT=8000 \
@@ -46,22 +54,31 @@ jobs:
           MYSQL_USER='${{ secrets.MYSQL_USER }}' \
           MYSQL_PASSWORD='${{ secrets.MYSQL_PASSWORD }}' \
           MYSQL_HOST='${{ secrets.MYSQL_HOST }}' \
-          MYSQL_DATABASE='${{ secrets.MYSQL_DATABASE }}' \
-          STARTUP_COMMAND='gunicorn app.main:app --bind=0.0.0.0:8000 --workers=4 --worker-class uvicorn.workers.UvicornWorker --timeout 600'
+          MYSQL_DATABASE='${{ secrets.MYSQL_DATABASE }}'
 
-    - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: 'fruits-api-app'
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: .
+    - name: Deploy using ZIP
+      run: |
+        echo "Creating deployment package..."
+        zip -r package.zip . -x "*.git*"
+        
+        echo "Deploying package..."
+        az webapp deployment source config-zip \
+          --resource-group fruits-api-rg \
+          --name fruits-api-app \
+          --src package.zip \
+          --debug
+
+    - name: Start Web App
+      run: |
+        echo "Starting web app..."
+        az webapp start --name fruits-api-app --resource-group fruits-api-rg
 
     - name: Stream logs
       run: |
         echo "Waiting for deployment to stabilize..."
         sleep 30
         echo "Streaming logs..."
-        az webapp log tail --name fruits-api-app --resource-group fruits-api-rg || true
+        az webapp log tail --name fruits-api-app --resource-group fruits-api-rg --debug || true
 
     - name: Post-deployment verification
       if: success()
