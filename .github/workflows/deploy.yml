@@ -28,34 +28,21 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Stop Web App
-      run: |
-        az webapp stop --name fruits-api-app --resource-group fruits-api-rg
-
     - name: Configure Linux Container
       run: |
         az webapp config set --name fruits-api-app --resource-group fruits-api-rg \
           --linux-fx-version "PYTHON|3.11" \
-          --always-on true \
-          --min-tls-version 1.2 \
-          --http20-enabled true
+          --startup-file "gunicorn --bind=0.0.0.0:8000 --workers=4 --worker-class=uvicorn.workers.UvicornWorker app.main:app" \
+          --always-on true
 
     - name: Configure App Settings
       run: |
         az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings \
-          WEBSITE_RUN_FROM_PACKAGE=1 \
-          PYTHONPATH=/home/site/wwwroot \
-          PORT=8000 \
-          SCM_DO_BUILD_DURING_DEPLOYMENT=true \
-          PYTHON_ENABLE_GUNICORN=true \
           WEBSITES_PORT=8000 \
           MYSQL_USER="${{ secrets.MYSQL_USER }}" \
           MYSQL_PASSWORD="${{ secrets.MYSQL_PASSWORD }}" \
           MYSQL_HOST="${{ secrets.MYSQL_HOST }}" \
-          MYSQL_DATABASE="${{ secrets.MYSQL_DATABASE }}" \
-          WEBSITE_HTTPLOGGING_RETENTION_DAYS=7 \
-          PYTHON_ENABLE_VENV=0 \
-          WEBSITE_ENABLE_SYNC_UPDATE_SITE=true
+          MYSQL_DATABASE="${{ secrets.MYSQL_DATABASE }}"
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
@@ -64,17 +51,12 @@ jobs:
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: .
 
-    - name: Start Web App
-      run: |
-        az webapp start --name fruits-api-app --resource-group fruits-api-rg
-
     - name: Stream logs
       run: |
         echo "Waiting for deployment to stabilize..."
         sleep 30
         echo "Streaming logs..."
-        az webapp log tail --name fruits-api-app --resource-group fruits-api-rg &
-        sleep 30
+        az webapp log tail --name fruits-api-app --resource-group fruits-api-rg || true
 
     - name: Post-deployment verification
       if: success()
