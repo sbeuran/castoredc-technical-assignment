@@ -63,12 +63,6 @@ docker build -t fruits-api .
 docker run -p 8000:8000 fruits-api
 ```
 
-## API Documentation
-
-Once the application is running, you can access:
-- Interactive API documentation (Swagger UI): `http://localhost:8000/docs`
-- Alternative API documentation (ReDoc): `http://localhost:8000/redoc`
-
 ### API Endpoints
 
 #### GET /api/v1/fruits
