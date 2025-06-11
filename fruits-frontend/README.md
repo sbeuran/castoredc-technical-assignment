@@ -11,17 +11,21 @@ The application is deployed at: https://delightful-beach-03aa35903.6.azurestatic
 To run the development server:
 
 ```bash
-cd fruits-frontend
+cd fruits-frontend  # Important: Make sure you're in the frontend directory
 npm run dev
 ```
 
 To build the application:
 
 ```bash
-cd fruits-frontend
+cd fruits-frontend  # Important: Make sure you're in the frontend directory
 npm run build
 ```
 
 ## API Integration
 
-The application integrates with the backend API at: https://fruits-api-app.azurewebsites.net/api/v1 
+The application integrates with the backend API at: https://fruits-api-app.azurewebsites.net/api/v1
+
+## Note
+
+All commands must be run from the `fruits-frontend` directory. 
