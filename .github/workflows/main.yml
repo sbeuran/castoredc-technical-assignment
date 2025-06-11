@@ -1,11 +1,16 @@
-name: CI/CD Pipeline
+name: Backend CI/CD Pipeline
 
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'fruits-frontend/**'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches: [ main ]
+    paths-ignore:
+      - 'fruits-frontend/**'
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io

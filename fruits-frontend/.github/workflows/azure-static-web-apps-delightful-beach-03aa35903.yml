@@ -1,20 +1,28 @@
-name: Azure Static Web Apps CI/CD
+name: Frontend CI/CD Pipeline
 
 # Workflow for deploying the frontend application
 on:
   push:
     branches:
       - main
+    paths:
+      - 'fruits-frontend/**'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
       - main
+    paths:
+      - 'fruits-frontend/**'
+  workflow_dispatch:
 
 jobs:
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
+    defaults:
+      run:
+        working-directory: fruits-frontend
     steps:
       - uses: actions/checkout@v3
         with:
@@ -26,7 +34,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
+          cache-dependency-path: 'fruits-frontend/package-lock.json'
 
       - name: Install dependencies
         run: npm ci
@@ -47,6 +55,7 @@ jobs:
           api_location: ""
           output_location: "out"
           skip_app_build: true
+          working_directory: fruits-frontend
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
