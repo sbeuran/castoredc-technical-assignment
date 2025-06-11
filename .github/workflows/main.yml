@@ -1,0 +1,138 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run tests
+      run: |
+        pytest
+
+  deploy_backend:
+    needs: test
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Configure App Service
+      run: |
+        az webapp config set --name fruits-api-app --resource-group fruits-api-rg \
+          --linux-fx-version "PYTHON|3.11" \
+          --always-on true
+
+        az webapp config appsettings set --name fruits-api-app --resource-group fruits-api-rg --settings '{
+          "WEBSITES_PORT": "8000",
+          "PORT": "8000",
+          "WEBSITE_WEBDEPLOY_USE_SCM": "true",
+          "PYTHON_ENABLE_GUNICORN": "true",
+          "PYTHON_VERSION": "3.11",
+          "PYTHON_ENABLE_VENV": "0",
+          "PYTHONPATH": "/home/site/wwwroot",
+          "SCM_DO_BUILD_DURING_DEPLOYMENT": "true",
+          "WEBSITE_RUN_FROM_PACKAGE": "1",
+          "WEBSITE_ENABLE_SYNC_UPDATE_SITE": "true",
+          "GUNICORN_CMD_ARGS": "--workers=4 --worker-class=uvicorn.workers.UvicornWorker --timeout=600 --access-logfile=- --error-logfile=-",
+          "STARTUP_COMMAND": "gunicorn app.main:app --bind=0.0.0.0:8000 --workers=4 --worker-class uvicorn.workers.UvicornWorker --timeout 600"
+        }'
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'fruits-api-app'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: .
+
+    - name: Stream logs
+      run: |
+        echo "Waiting for deployment to stabilize..."
+        sleep 30
+        echo "Streaming logs..."
+        az webapp log tail --name fruits-api-app --resource-group fruits-api-rg || true
+
+    - name: Post-deployment verification
+      if: success()
+      run: |
+        echo "Checking app health..."
+        curl -v https://fruits-api-app.azurewebsites.net/health || echo "Health check failed"
+
+  deploy_frontend:
+    needs: test
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Frontend
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'fruits-frontend/package-lock.json'
+
+      - name: Build And Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DELIGHTFUL_BEACH_03AA35903 }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "fruits-frontend"
+          api_location: ""
+          output_location: ".next"
+
+  close_pull_request:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DELIGHTFUL_BEACH_03AA35903 }}
+          action: "close" 
