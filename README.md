@@ -204,7 +204,7 @@ The project uses GitHub Actions for continuous integration and deployment:
      - Streams deployment logs
      - Performs health check verification
 
-2. Frontend Pipeline (`azure-static-web-apps-delightful-beach-03aa35903.yml`):
+2. Frontend Pipeline (`frontend.yml`):
    - Triggers on:
      - Push to main branch (frontend directory changes)
      - Pull request events
