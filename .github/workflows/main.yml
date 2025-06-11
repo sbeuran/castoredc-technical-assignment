@@ -114,7 +114,15 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'fruits-frontend/package-lock.json'
 
-      - name: Build And Deploy
+      - name: Install dependencies
+        working-directory: fruits-frontend
+        run: npm ci
+
+      - name: Build
+        working-directory: fruits-frontend
+        run: npm run build
+
+      - name: Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -123,7 +131,9 @@ jobs:
           action: "upload"
           app_location: "fruits-frontend"
           api_location: ""
-          output_location: ".next"
+          output_location: "out"
+          skip_app_build: true
+          deployment_timeout: "10" # 10 minutes timeout
 
   close_pull_request:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
