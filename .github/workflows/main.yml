@@ -87,8 +87,8 @@ jobs:
       run: |
         echo "Waiting for deployment to stabilize..."
         sleep 30
-        echo "Streaming logs..."
-        az webapp log tail --name fruits-api-app --resource-group fruits-api-rg || true
+        echo "Streaming logs for 2 minutes..."
+        timeout 120s az webapp log tail --name fruits-api-app --resource-group fruits-api-rg || true
 
     - name: Post-deployment verification
       if: success()
