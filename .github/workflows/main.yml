@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Backend CI/CD Pipeline
 
 on:
   push:
@@ -94,61 +94,4 @@ jobs:
       if: success()
       run: |
         echo "Checking app health..."
-        curl -v https://fruits-api-app.azurewebsites.net/health || echo "Health check failed"
-
-  deploy_frontend:
-    needs: test
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-    runs-on: ubuntu-latest
-    name: Build and Deploy Frontend
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-          lfs: false
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: 'fruits-frontend/package-lock.json'
-
-      - name: Install dependencies
-        working-directory: fruits-frontend
-        run: npm ci
-
-      - name: Build
-        working-directory: fruits-frontend
-        env:
-          NEXT_PUBLIC_API_BASE_URL: 'https://fruits-api-app.azurewebsites.net/api/v1'
-        run: npm run build
-
-      - name: List build output
-        working-directory: fruits-frontend
-        run: ls -la out/
-
-      - name: Deploy
-        id: builddeploy
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DELIGHTFUL_BEACH_03AA35903 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-          app_location: "."
-          api_location: ""
-          output_location: "fruits-frontend/out"
-          app_artifact_location: "fruits-frontend/out"
-          skip_app_build: true
-
-  close_pull_request:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    steps:
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DELIGHTFUL_BEACH_03AA35903 }}
-          action: "close" 
+        curl -v https://fruits-api-app.azurewebsites.net/health || echo "Health check failed" 
