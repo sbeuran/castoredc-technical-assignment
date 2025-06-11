@@ -1,5 +1,6 @@
 name: Azure Static Web Apps CI/CD
 
+# Workflow for deploying the frontend application
 on:
   push:
     branches:
