@@ -236,7 +236,7 @@ The pipelines can be skipped in two ways:
    - Add `[skip ci]` to your commit message
    - Example: `git commit -m "docs: update README [skip ci]"`
 
-![GitHub Actions Interface](docs/github-actions.png)
+<img src="docs/github-actions.png" alt="GitHub Actions Interface" width="800"/>
 
 ## Production URLs
 
