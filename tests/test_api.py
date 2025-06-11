@@ -50,9 +50,7 @@ def test_read_root(client):
     response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {
-        "message": "Welcome to the Fruits API",
-        "docs_url": "/docs",
-        "redoc_url": "/redoc"
+        "message": "Welcome to the Fruits API"
     }
 
 def test_get_all_data_empty(client):
