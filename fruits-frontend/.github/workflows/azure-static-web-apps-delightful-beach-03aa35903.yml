@@ -6,13 +6,13 @@ on:
     branches:
       - main
     paths:
-      - 'fruits-frontend/**'
+      - '**'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
       - main
     paths:
-      - 'fruits-frontend/**'
+      - '**'
   workflow_dispatch:
 
 jobs:

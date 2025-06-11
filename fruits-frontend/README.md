@@ -11,12 +11,14 @@ The application is deployed at: https://delightful-beach-03aa35903.6.azurestatic
 To run the development server:
 
 ```bash
+cd fruits-frontend
 npm run dev
 ```
 
 To build the application:
 
 ```bash
+cd fruits-frontend
 npm run build
 ```
 
