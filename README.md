@@ -190,16 +190,40 @@ The application is deployed using Azure resources:
 
 The project uses GitHub Actions for continuous integration and deployment:
 
-1. Backend Pipeline:
-   - Triggers on push to main branch
-   - Runs tests
-   - Builds Docker image
-   - Deploys to Azure App Service
+1. Backend Pipeline (`main.yml`):
+   - Triggers on:
+     - Push to main branch (excluding frontend and markdown files)
+     - Pull request events
+     - Manual workflow dispatch
+   - Pipeline steps:
+     - Sets up Python 3.11
+     - Installs dependencies
+     - Runs tests
+     - Configures Azure App Service
+     - Deploys to Azure App Service
+     - Streams deployment logs
+     - Performs health check verification
 
-2. Frontend Pipeline:
-   - Triggers on push to main branch in fruits-frontend directory
-   - Builds Next.js application
-   - Deploys to Azure Static Web Apps
+2. Frontend Pipeline (`azure-static-web-apps-delightful-beach-03aa35903.yml`):
+   - Triggers on:
+     - Push to main branch (frontend directory changes)
+     - Pull request events
+     - Manual workflow dispatch
+   - Pipeline steps:
+     - Sets up Node.js 18
+     - Installs dependencies
+     - Builds Next.js application
+     - Copies static web app configuration
+     - Deploys to Azure Static Web Apps
+
+### Manual Deployment
+
+Both pipelines support manual triggering through GitHub Actions:
+1. Navigate to the "Actions" tab in GitHub
+2. Select either "Backend CI/CD Pipeline" or "Frontend CI/CD Pipeline"
+3. Click "Run workflow"
+4. Select the branch (usually 'main')
+5. Click "Run workflow"
 
 ## Production URLs
 
