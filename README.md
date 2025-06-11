@@ -225,6 +225,19 @@ Both pipelines support manual triggering through GitHub Actions:
 4. Select the branch (usually 'main')
 5. Click "Run workflow"
 
+### Skipping CI/CD
+
+The pipelines can be skipped in two ways:
+1. Path-based skipping:
+   - Backend pipeline ignores changes in `fruits-frontend/**` and `**.md`
+   - Frontend pipeline only triggers on changes in `fruits-frontend/**`
+
+2. Commit message skipping:
+   - Add `[skip ci]` to your commit message
+   - Example: `git commit -m "docs: update README [skip ci]"`
+
+![GitHub Actions Interface](docs/github-actions.png)
+
 ## Production URLs
 
 - Backend API: https://fruits-api-app.azurewebsites.net
