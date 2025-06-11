@@ -109,6 +109,58 @@ Example response:
                 "fiber": 2.4,
                 "vitamins": "A, C"
             }
+        },
+        {
+            "id": 2,
+            "name": "Banana",
+            "color": "Yellow",
+            "taste": "Sweet",
+            "origin_country": "Ecuador",
+            "price_per_kg": 1.99,
+            "suppliers": [
+                {
+                    "id": 3,
+                    "name": "Tropical Exports",
+                    "contact_email": "sales@tropicalexports.com",
+                    "country": "Ecuador",
+                    "rating": 4.2
+                }
+            ],
+            "nutritional_info": {
+                "id": 2,
+                "calories": 89,
+                "carbohydrates": 23.0,
+                "protein": 1.1,
+                "fat": 0.3,
+                "fiber": 2.6,
+                "vitamins": "B6, C"
+            }
+        },
+        {
+            "id": 3,
+            "name": "Orange",
+            "color": "Orange",
+            "taste": "Sweet-Citrus",
+            "origin_country": "Spain",
+            "price_per_kg": 3.49,
+            "suppliers": [
+                {
+                    "id": 2,
+                    "name": "Global Fruits Co",
+                    "contact_email": "info@globalfruits.com",
+                    "country": "Spain",
+                    "rating": 4.8
+                }
+            ],
+            "nutritional_info": {
+                "id": 3,
+                "calories": 47,
+                "carbohydrates": 12.0,
+                "protein": 0.9,
+                "fat": 0.1,
+                "fiber": 2.4,
+                "vitamins": "C"
+            }
         }
     ],
     "total_fruits": 3,
