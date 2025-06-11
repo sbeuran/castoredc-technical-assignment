@@ -3,6 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   output: 'export',
+  trailingSlash: true,
   distDir: 'out',
   modularizeImports: {
     '@mui/icons-material': {

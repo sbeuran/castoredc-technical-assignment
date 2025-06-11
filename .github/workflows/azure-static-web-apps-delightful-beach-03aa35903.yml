@@ -46,10 +46,12 @@ jobs:
       - name: List output directory
         working-directory: fruits-frontend
         run: |
-          echo "Contents of fruits-frontend/out:"
+          echo "Current directory:"
+          pwd
+          echo "Contents of current directory:"
+          ls -la
+          echo "Contents of out directory:"
           ls -la out/
-          echo "Contents of index.html:"
-          cat out/index.html || echo "index.html not found"
 
       - name: Deploy
         id: builddeploy
@@ -58,11 +60,10 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DELIGHTFUL_BEACH_03AA35903 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "fruits-frontend/out"
+          app_location: "fruits-frontend"
           api_location: ""
-          output_location: "."
+          output_location: "out"
           skip_app_build: true
-          is_static_export: true
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
