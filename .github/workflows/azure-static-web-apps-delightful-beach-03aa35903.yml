@@ -20,9 +20,6 @@ jobs:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     name: Build and Deploy Job
-    defaults:
-      run:
-        working-directory: fruits-frontend
     steps:
       - uses: actions/checkout@v3
         with:
@@ -37,9 +34,11 @@ jobs:
           cache-dependency-path: 'fruits-frontend/package-lock.json'
 
       - name: Install dependencies
+        working-directory: fruits-frontend
         run: npm ci
 
       - name: Build
+        working-directory: fruits-frontend
         env:
           NEXT_PUBLIC_API_BASE_URL: 'https://fruits-api-app.azurewebsites.net/api/v1'
         run: npm run build
@@ -51,11 +50,10 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DELIGHTFUL_BEACH_03AA35903 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "."
+          app_location: "fruits-frontend"
           api_location: ""
           output_location: "out"
           skip_app_build: true
-          working_directory: fruits-frontend
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
