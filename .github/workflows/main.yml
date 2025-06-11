@@ -120,6 +120,8 @@ jobs:
 
       - name: Build
         working-directory: fruits-frontend
+        env:
+          NEXT_PUBLIC_API_BASE_URL: 'https://fruits-api-app.azurewebsites.net/api/v1'
         run: npm run build
 
       - name: Deploy
@@ -131,9 +133,9 @@ jobs:
           action: "upload"
           app_location: "fruits-frontend"
           api_location: ""
-          output_location: "out"
+          output_location: "fruits-frontend/out"
           skip_app_build: true
-          deployment_timeout: "10" # 10 minutes timeout
+          is_static_export: true
 
   close_pull_request:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
